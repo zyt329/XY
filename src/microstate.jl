@@ -67,7 +67,7 @@ end
 function init_spins_config_gen(L1, L2)
     spins = Array{Spin,3}(undef, 2, L1, L2)
     for z in 1:2, i in 1:L1, j in 1:L2
-        ϕ_init = 0#rand(Uniform(0, 2π))
+        ϕ_init = rand(Uniform(0, 2π))
         spins[z, i, j] = Spin(ϕ_init)
     end
     return spins
@@ -97,7 +97,12 @@ mutable struct Microstate
     E::Real
     M::Vector{Float64}
 
-    function Microstate(;
+
+    """
+        Method to create a Microstate by default spin configurations (`init_spins_config_gen()`).
+        Input: `J1`,`J2`,`Jz`,`L1`,`L2`
+    """
+    function Microstate(
         J1::Real,
         J2::Real,
         Jz::Real,
@@ -107,6 +112,27 @@ mutable struct Microstate
         lattice_info = Lattice(L1, L2)
 
         spins = init_spins_config_gen(L1, L2)
+
+        E = Energy(J1, J2, Jz, lattice_info, spins)
+
+        M = Magnetization(spins)
+
+        new(J1, J2, Jz, lattice_info, spins, E, M)
+    end
+
+    """
+        Method to create a Microstate by input spin configurations "spins".
+        Input: `J1`,`J2`,`Jz`,`L1`,`L2`,`spins`
+    """
+    function Microstate(
+        J1::Real,
+        J2::Real,
+        Jz::Real,
+        L1::Int64,
+        L2::Int64,
+        spins::Array{Spin,3}
+    )
+        lattice_info = Lattice(L1, L2)
 
         E = Energy(J1, J2, Jz, lattice_info, spins)
 

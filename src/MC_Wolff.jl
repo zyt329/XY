@@ -101,5 +101,5 @@ function MC_Wolff(;
     end
 
 
-    return samples, micstate.spins
+    return samples, micstate
 end

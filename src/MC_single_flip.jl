@@ -81,7 +81,7 @@ function MC_single_flip(;
 
     end
 
-    return samples, micstate.spins
+    return samples, micstate
 end
 
 
