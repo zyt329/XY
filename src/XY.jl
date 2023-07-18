@@ -40,7 +40,7 @@ export coordinate, numbering, neib, neibs_xy, neibs_z, neib_xy_list_gen, neib_z_
 # ==============================================================
 
 include("microstate.jl")
-export Energy, Microstate, Energy_Diff, Magnetization, M_Diff, update
+export Energy, Microstate, Energy_Diff, Magnetization, M_Diff, update, spins2array
 
 # ==============================================================
 # ===========      load measurement functions     ==============

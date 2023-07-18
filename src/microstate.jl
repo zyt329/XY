@@ -140,6 +140,7 @@ mutable struct Microstate
 
         new(J1, J2, Jz, lattice_info, spins, E, M)
     end
+
 end
 
 
@@ -219,3 +220,19 @@ function update(micstate::Microstate, coord::Tuple{Int64,Int64,Int64}, sp_new::S
 end
 # micstate = Microstate(J1=1,J2=1,Jz=1,L1=4,L2=4)
 # update(micstate, 1, Spin(ϕ=π / 2))
+
+
+"""
+convert an array of `Spin` to an array of phases of the spins
+"""
+function spins2array(micstate::Microstate)
+
+    spins = micstate.spins
+    L1 = micstate.lattice_info.L1
+    L2 = micstate.lattice_info.L2
+
+    # loop over all coor
+    phases_array = [spins[z, i, j].θ for z in 1:2, i in 1:L1, j in 1:L2]
+
+    return phases_array
+end
