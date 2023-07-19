@@ -3,12 +3,65 @@ Container to store value of measurement for each microstate in the Markov Chain.
 """
 struct Sample
     E::Vector{Float64}
+    E²::Vector{Float64}
     M::Vector{Vector{Float64}}
+    M²::Vector{Float64}
+    γ₁::Vector{Float64}
+    γ₂::Vector{Float64}
+    γ₁₂::Vector{Float64}
+    spins::Vector{Array{Float64,3}}
     function Sample()
-        new(Float64[], Vector{Float64}[])
+        new(Float64[], Float64[], Vector{Float64}[], Float64[], Float64[], Float64[], Float64[], Array{Float64,3}[])
     end
 end
 
+"""
+    calculate helicity modulus γ of 1,2 and 1+2 layers of a single microstate.
+        γ=β/L²∑ₓcos(θₓ-θₓ₊₁) - β²/L²(∑ₓsin(θₓ-θₓ₊₁))² = β/L²term1 - β²/L²term2²
+"""
+function γs(micstate, T)
+    # load information
+    β = 1 / T
+    lattice_info = micstate.lattice_info
+
+    L1 = lattice_info.L1
+    L2 = lattice_info.L2
+    xy_neibs = lattice_info.xy_neibs
+
+    # all possible coordinates in a layer
+    coords = [(z, i, j) for z in 1:2, i in 1:L1, j in 1:L2]
+
+    # initialize γ
+    γ₁ = 0
+    γ₂ = 0
+    γ₁₂ = 0
+
+    # layer 1
+    z = 1
+    term1 = 0
+    term2 = 0
+    for j in 1:L2
+        for i in 1:L1
+            term1 += cos(micstate.spins[1, i, j] * micstate.spins[1, mod1(i + 1, L1), j])
+            term2 += cos(micstate.spins[1, i, j] ⊗ micstate.spins[1, mod1(i + 1, L1), j])
+        end
+    end
+    γ₁ = β / (L1 * L2) * term1 - β^2 / (L1 * L2) * term2^2
+
+    # layer 2
+    z = 2
+    term1 = 0
+    term2 = 0
+    for j in 1:L2
+        for i in 1:L1
+            term1 += cos(micstate.spins[1, i, j] * micstate.spins[1, mod1(i + 1, L1), j])
+            term2 += cos(micstate.spins[1, i, j] ⊗ micstate.spins[1, mod1(i + 1, L1), j])
+        end
+    end
+    γ₂ = β / (L1 * L2) * term1 - β^2 / (L1 * L2) * term2^2
+
+    return γ₁, γ₂, (γ₁ + γ₂)
+end
 
 function Eavg_site(E_sample::Array; L1, L2)
     samplelength = length(E_sample)

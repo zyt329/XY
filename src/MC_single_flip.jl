@@ -38,7 +38,9 @@ function MC_single_flip(;
     T::Float64,
     measurement_sweeps::Int64,
     warmup_sweeps::Int64,
-    init_micstate::Microstate
+    init_micstate::Microstate,
+    γ_meas_Δt::Int64=500,
+    spins_meas_Δt::Int64=1000
 )
 
     # pass in initial microstate and parameters
@@ -76,8 +78,18 @@ function MC_single_flip(;
         # ===========       Taking Samples!      ==============
         # =====================================================
 
+
         push!(samples.E, micstate.E)
+        push!(samples.E², (micstate.E)^2)
         push!(samples.M, copy(micstate.M))
+        push!(samples.M², micstate.M[1]^2 + micstate.M[2]^2)
+        if mod(sweep_ind, γ_meas_Δt) == 0
+            γ₁, γ₂, γ₁₂ = γs(micstate, T)
+            push!(samples.γ₁, γ₁)
+            push!(samples.γ₂, γ₂)
+            push!(samples.γ₁₂, γ₁₂)
+        end
+        mod(sweep_ind, spins_meas_Δt) == 0 && push!(samples.spins, spins2array(micstate))
 
     end
 

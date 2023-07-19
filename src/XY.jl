@@ -59,6 +59,13 @@ export accept, MC_single_flip
 include("MC_Wolff.jl")
 export MC_Wolff
 
+# ===================================================================
+# ===========      load binning analysis functions     ==============
+# ===================================================================
+
+include("data_analysis.jl")
+export binning_anal
+
 
 
 
